@@ -155,13 +155,13 @@ clawNOISE: FloatArray.fill(512, {arg i;
 )
 );
 
+//you'll have to insert mono files here
 (
-~currSet =  "/Users/bkudler/SuperColliderstuffz/wavesets/Samples/waveset-gendy1-short.wav";
-~leaveOneSet = "/Users/bkudler/SuperColliderstuffz/wavesets/Samples/asmr-try?.wav";
-// ~leaveOneSet = "/Users/bkudler/SuperColliderstuffz/wavesets/Samples/latin-whisper.wav";
-~leaveTwoSet = "/Users/bkudler/SuperColliderstuffz/wavesets/Samples/asmr-try?.wav";
-~transferSetOne = "/Users/bkudler/whisper-test.wav";
-~transferSetTwo = "/Users/bkudler/whisper-test.wav";
+~currSet =  "";
+~leaveOneSet = "";
+~leaveTwoSet = "";
+~transferSetOne = "";
+~transferSetTwo = "";
 );
 
 

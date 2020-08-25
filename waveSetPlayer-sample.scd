@@ -1,3 +1,5 @@
+//you will have to start with waveset-player and drop in files to convert tow wavesets.
+
 //put the path to the waveset-player file here and load it in. This will store an event in the currentEnvironment called "wavesetPlayer"
 ().load
 
