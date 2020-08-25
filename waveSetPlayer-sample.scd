@@ -36,7 +36,7 @@ Synth(\eq,addAction:\addToTail);
 //if you want to change the current waveset you're using
 ~waveSetPlayer.switchSet = true;
 ~temp = ~waveSetPlayer.currSet
-~waveSetPlayer.switchToSet = Wavesets.from("/Users/bkudler/whisper-two-mac.aif");
+~waveSetPlayer.switchToSet = Wavesets.from("");
 //switches it back to the original waveset
 ~waveSetPlayer.switchToSet = ~temp;
 ~waveSetPlayer.switchSet = false;
