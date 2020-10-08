@@ -32,4 +32,4 @@ in `waveset-player.scd` where it says
 );
 ```
 
-you will have to pick a mono audio file for each variable. Put the aboslute path in between the quotation marks. Each path is used for a different transformation.
+you will have to pick a mono audio file for each variable. Put the aboslute path in between the quotation marks. Each file is used for a different waveset transformation.
