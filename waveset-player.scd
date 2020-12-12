@@ -1,169 +1,17 @@
-(
-~wavesetWaves = (
-saw: Signal.sineFill(512, Array.fill(512, {arg i; i = i + 1; (1/i) - 1} )),
-wuTang:  Signal.sineFill(512, Array.fill(20, {arg i; i = i + 1; (2/i)} ), [1,2]),
-squigSaw:  Signal.sineFill(512, Array.fill(20, {arg i; i = i + 1; (1/i ) } ), Array.fill(20, {arg i; i - 2})),
-weirdSin: Signal.sineFill(512, [1,2]),
-weirdSin2: Signal.sineFill(512, Array.fill(5, {arg i; (i - 1) * -1}), Array.fill(2, {arg i; i })),
-//the stock market is taking a plunge
-badStocks: Signal.sineFill(512, Array.fill(512, {arg i; i = i + 1; (i*0.5) + rrand(i, i + 2)/i})),
-sin: Signal.sineFill(512, [1]),
 
-//odd harmonics but more sine than square, huh?!?!?
-weirdSqr: Signal.sineFill(512, Array.fill(512, {
-	arg i;
-	if( (i%2 !== 0), {
-		1/i;
-	},{
-		0;
-	});
-})),
-
-//okay time for the regular square
-sqr: Signal.sineFill(512, Array.fill(512, {
-	arg i;
-	i = i + 1;
-	if( (i%2 !== 0), {
-		1/i;
-	},{
-		0;
-	});
-
-
-})),
-
-
-sizz: Signal.sineFill(512, Array.fill(512,{arg i;
-	var div;
-	i = i + 1;
-	if( (i < (512/2)), {
-		(i/2)/i;
-	}, {
-		i;
-	});
-
-}),Array.fill(20, {arg i; i = i+1; rrand(-1,i)}))*0.8,
-
-
-iCallItM: Signal.sineFill(512, Array.fill(512,{arg i;
-	var div;
-	i = i + 1;
-	div = (i*rrand(0.01, 0.2));
-	if( (i < (512/2)), {
-		i/div;
-	}, {
-		i;
-	});
-
-}),Array.fill(50, {arg i; i = i+1; rrand(1,i)})),
-
-
-
-skwagSaw: Signal.sineFill(512, Array.fill(512, {arg i;
-	i = i + 1;
-
-	if( (i%32 !== 0), {
-		if( (i > (512*(0.75))), {
-			(1/(i*0.85));
-		},{
-			if( (i%2) == 0, {
-				(1/i)*(-1);
-			},{
-				(1/i);
-			});
-		});
-	},{
-		if( (i > (512*(0.75))), {
-			(0.25)
-		},{
-			0;
-		});
-	});
-})),
-
-
-
-switchSqr: Signal.sineFill(512, Array.fill(512, {arg i;
-	i = i + 1;
-
-	if( (i%4 !== 0), {
-		512 - i;
-	},{
-		0;
-	});
-})),
-
-
-//HNW!
-hNW: Signal.sineFill(512, Array.fill(512, {1.0.rand2})),
-
-
-sizzDown: Signal.sineFill(512, Array.fill(512, {arg i;
-	i = i + 1;
-
-	if( (i%32 !== 0), {
-		if( (i > (512*(0.75))), {
-			(1/(i*0.85));
-		},{
-			(1/i);
-		});
-	},{
-		if( (i > (512*(0.75))), {
-			(0.25)
-		},{
-			0;
-		});
-	});
-})),
-
-crazyu: Signal.sineFill(512, Array.fill(512, {
-	arg i;
-	i = i + 1;
-	if( (i%2 !== 0), {
-		1/i;
-	},{
-		0;
-	});
-
-
-}),[pi, 0, -pi]),
-
-tri: Signal.sineFill(512, Array.fill(512, {
-	arg i;
-	i = i + 1;
-	if( (i%2 !== 0), {
-		(1/i.squared)*(-1);
-	},{
-		0;
-	});
-
-}),[pi/2]),
-
-
-
-
-weirdTri: Signal.fill(512, {arg i;
-	(512%i)*0.01;
-}),
-
-clawNOISE: FloatArray.fill(512, {arg i;
-	var mod = poisson(i);
-	(512%mod)*(-1);
-}).normalize(-1,1);
-
-
-)
-);
-
+~currDir = Document.current.dir;
 //you'll have to insert mono files here
 (
-~currSet =  "";
-~leaveOneSet = "";
-~leaveTwoSet = "";
-~transferSetOne = "";
-~transferSetTwo = "";
+~currSet =  ~currDir ++ "/files/gendy-3.aif";
+~leaveOneSet = ~currDir ++ "/files/sticky-bells-1.aif";
+~leaveTwoSet = ~currDir ++ "/files/sticky-noise.aif";
+~transferSetOne = ~currDir ++ "/files/clear-sound.aif";
+~transferSetTwo = ~currDir ++ "/files/sqr-long.aif";
+~alternateSet = ~currDir ++ "/files/don't-ever.aif";
 );
 
+//make good example
+//make new man-moth-moves
 
 (
 ~waveSetPlayer = (
@@ -233,8 +81,12 @@ clawNOISE: FloatArray.fill(512, {arg i;
 		self.subBuf = buf;
 	},
 
+	\newWaves : { arg self, wave;
+		self.subBuf.sendCollection(wave);
+	},
+
 	\randomWave : {arg self;
-		self.subBuf.sendCollection(self.waves.choose);
+		self.subBuf.sendCollection(self.waves.waves.choose);
 	},
 
 	\distance : {0.0},
@@ -249,9 +101,39 @@ clawNOISE: FloatArray.fill(512, {arg i;
 
 	\multiplier : {1},
 
-	\deleteAmount: {arg self; self.currSet.xings.size*2},
+	\shouldDeletePause : {false},
 
-	\deletePause : {false},
+	\deletePauseSet : {false},
+
+	\shouldDelete : {false},
+
+	\deleteLevel : {1},
+
+	\deleteAmt : {1},
+
+	\deleteNormAmt : {0},
+
+	\deleteNormLevel : {1},
+
+	\deleteReceiver : {1},
+
+	\deleteDeviation : {2},
+
+	\shouldRandomDelete : {false},
+
+	\randomDeleteAmount : { arg self;
+		var numb = gauss(self.deleteReceiver,self.deleteDeviation).asInteger;
+		if(numb.isNegative,{
+			numb = numb * -1;
+		}, {
+			numb;
+		});
+		if(numb === 0,{
+			self.randomDeleteAmount();
+		},{
+			numb;
+		});
+	},
 
 	\repeats : {1},
 
@@ -320,10 +202,6 @@ clawNOISE: FloatArray.fill(512, {arg i;
 	},
 
 	\out : {5},
-
-	\currChunk : nil,
-
-	\currFinal : nil,
 
 	\inst :  Wavesets.defaultInst,
 
@@ -729,13 +607,39 @@ clawNOISE: FloatArray.fill(512, {arg i;
 
 					};
 
+					if(self.shouldDelete()){
+						if(self.deleteAmt > 0){
+
+							ev.putPairs([\amp, 0]);
+							self.deletePauseSet = true;
+
+							self.deleteAmt = self.deleteAmt - 1;
+
+							if(self.deleteAmt === 0){
+								self.deleteNormAmt = self.deleteNormLevel + 1;
+							};
+
+						};
+						if(self.deleteNormAmt > 0){
+							self.deleteNormAmt = self.deleteNormAmt - 1;
+							if(self.deleteNormAmt === 0){
+								self.deleteAmt = self.deleteLevel;
+							};
+						};
+
+					};
+
+					if( self.shouldRandomDelete() && (i%self.randomDeleteAmount() === 0) ){
+						self.deletePauseSet = true;
+						ev.putPairs([\amp, 0]);
+					};
 
 					if(  (ev.wsAmp < (self.currSet.avgAmp*self.shrinkAmt)) && self.shouldShrink() ){
 						ev.putPairs([\amp, 0]);
 					};
 
-
-					if( ( (i%self.deleteAmount()) !== 0),{
+					/////// LETS PLAY ///////
+					// if( ( (i%self.deleteAmount()) !== 0),{
 						ev.play;
 						if(harmEvents.notNil, {
 							harmEvents.do({arg harm;
@@ -749,15 +653,16 @@ clawNOISE: FloatArray.fill(512, {arg i;
 							self.distance().wait;
 						});
 
-					}, {
-						if(self.deletePause(), {
-							if(i !== (self.currSet.xings.size - (self.waveSetAmount() + 1)), {
-								(ev.sustain + self.distance()).wait;
-							},{
-								self.distance().wait;
-							});
+					// }, {
+					if((self.shouldDeletePause() && self.deletePauseSet()), {
+						self.deletePauseSet = false;
+						if(i !== (self.currSet.xings.size - (self.waveSetAmount() + 1)), {
+							(ev.sustain + self.distance()).wait;
+						},{
+							self.distance().wait;
 						});
 					});
+					// });
 					if( ( self.decBreak() and: (self.breakPoint() != 0) and: (self.ampAmt > 0.1) ) ,{
 						self.breakPoint = self.breakPoint - 1;
 						self.ampAmt = self.ampAmt - (self.lastAmpAmt/self.breakPointSet);
