@@ -1,30 +1,16 @@
 
-~currDir = Document.current.dir;
-//you'll have to insert mono files here
-(
-~currSet =  ~currDir ++ "/files/gendy-3.aif";
-~leaveOneSet = ~currDir ++ "/files/sticky-bells-1.aif";
-~leaveTwoSet = ~currDir ++ "/files/sticky-noise.aif";
-~transferSetOne = ~currDir ++ "/files/clear-sound.aif";
-~transferSetTwo = ~currDir ++ "/files/sqr-long.aif";
-~alternateSet = ~currDir ++ "/files/don't-ever.aif";
-);
-
-//make good example
-//make new man-moth-moves
-
 (
 ~waveSetPlayer = (
 
-	\currSet : Wavesets.from(~currSet),
+	\currSet : nil,
 
-	\leaveOneSet : Wavesets.from(~leaveOneSet),
+	\leaveOneSet : nil,
 
-	\leaveTwoSet : Wavesets.from(~leaveTwoSet),
+	\leaveTwoSet : nil,
 
-	\transferSetOne : Wavesets.from(~transferSetOne),
+	\transferSetOne : nil,
 
-	\transferSetTwo : Wavesets.from(~transferSetTwo),
+	\transferSetTwo : nil,
 
 	\switchSet : false,
 
@@ -36,12 +22,20 @@
 
 	\startAmt : {0.2},
 
-	\init : {
+	\mainOut: {0},
+
+	\out : {5},`
+
+	\waves : (),
+
+	\init : {arg self, subBufNum, waves, files;
+		var buf = Buffer.alloc(s, 512,bufnum:subBufNum);
+
 		SynthDef(\eq, {
 
-			var limiter = Limiter.ar(In.ar(5,2), 0.9);
+			var limiter = Limiter.ar(In.ar(self.out,2), 0.85);
 
-			Out.ar(0, limiter);
+			Out.ar(self.mainOut, limiter);
 		}).add;
 
 		Wavesets.prepareSynthDefs;
@@ -63,7 +57,16 @@
 			OffsetOut.ar(out, Pan2.ar(snd, pan));
 		}, \ir.dup(8)).add;
 
+		self.subBuf = buf;
+		self.waves = waves;
 
+		self.currSet = Wavesets.from(files.currSet);
+		self.leaveOneSet = Wavesets.from(files.leaveOneSet);
+		self.leaveTwoSet = Wavesets.from(files.leaveTwoSet);
+		self.transferSetOne = Wavesets.from(files.transferSetOne);
+		self.transferSetTwo = Wavesets.from(files.transferSetTwo);
+
+		self;
 	},
 
 	\modulateStart : {arg self; self.inst = \wstSTM},
@@ -73,13 +76,6 @@
 	\speed2 : {arg self; self.baseSpeed()*1.1},
 
 	\moduleSpeedPlusStart : {arg self; self.inst = \wstSTM1gl},
-
-	\waves : (),
-
-	\initBuffer : { arg self, buf1, buf2;
-		var buf = Buffer.alloc(s, 512,bufnum:buf1);
-		self.subBuf = buf;
-	},
 
 	\newWaves : { arg self, wave;
 		self.subBuf.sendCollection(wave);
@@ -200,8 +196,6 @@
 		self.lastAmpAdd = amp;
 		self.ampAdd = amp;
 	},
-
-	\out : {5},
 
 	\inst :  Wavesets.defaultInst,
 
@@ -637,9 +631,6 @@
 					if(  (ev.wsAmp < (self.currSet.avgAmp*self.shrinkAmt)) && self.shouldShrink() ){
 						ev.putPairs([\amp, 0]);
 					};
-
-					/////// LETS PLAY ///////
-					// if( ( (i%self.deleteAmount()) !== 0),{
 						ev.play;
 						if(harmEvents.notNil, {
 							harmEvents.do({arg harm;
@@ -652,8 +643,6 @@
 						},{
 							self.distance().wait;
 						});
-
-					// }, {
 					if((self.shouldDeletePause() && self.deletePauseSet()), {
 						self.deletePauseSet = false;
 						if(i !== (self.currSet.xings.size - (self.waveSetAmount() + 1)), {
@@ -662,7 +651,6 @@
 							self.distance().wait;
 						});
 					});
-					// });
 					if( ( self.decBreak() and: (self.breakPoint() != 0) and: (self.ampAmt > 0.1) ) ,{
 						self.breakPoint = self.breakPoint - 1;
 						self.ampAmt = self.ampAmt - (self.lastAmpAmt/self.breakPointSet);
